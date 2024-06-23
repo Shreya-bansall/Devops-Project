@@ -57,8 +57,38 @@ Nginx, known for its high performance and scalability, is another popular web se
 - **Disk I/O:** Read/write operations involving Nginx’s files or logs, affecting disk performance.
 - **Network Traffic:** Inbound and outbound data transfer rate handled by Nginx, indicating network utilization.
 
----
-
 ### Conclusion
 
 Effective monitoring of WordPress, Apache HTTP Server, and Nginx ensures proactive management of your web application infrastructure. By monitoring these metrics, you can identify performance bottlenecks, anticipate resource requirements, and ensure optimal user experience. Customize these metrics based on your specific environment and monitoring tools to achieve comprehensive visibility and proactive management.
+
+---
+Certainly! Here are the few main commands used in this project:
+
+1. **Docker Commands**:
+   - `docker build -t shreyabansal/nginx-lua .`: Build a Docker image named `shreyabansal/nginx-lua`.
+   - `docker push shreyabansal/nginx-lua`: Push the Docker image to a Docker registry.
+
+2. **Kubernetes Commands**:
+   - `kubectl create namespace <namespace-name>`: Create a new Kubernetes namespace.
+   - `kubectl create -f wordpress.yaml`: Deploy a Kubernetes resource from a YAML file (`wordpress.yaml`).
+   - `kubectl get pods`: List all Kubernetes pods in the current namespace.
+   - `kubectl get svc`: List all Kubernetes services in the current namespace.
+   - `kubectl apply -f prometheus-ingress.yaml`: Apply a Kubernetes resource from a YAML file (`prometheus-ingress.yaml`).
+
+3. **Helm Commands**:
+   - `helm repo add grafana https://grafana.github.io/helm-charts`: Add a Helm repository for Grafana.
+   - `helm repo update`: Update Helm repositories.
+   - `helm install grafana grafana/grafana`: Install Grafana using Helm.
+
+4. **Prometheus and Grafana Configuration**:
+   - `kubectl port-forward <grafana-pod-name> 3000:3000 --namespace=<namespace>`: Port-forward Grafana to access it locally.
+   - `kubectl get secret --namespace <namespace> grafana -o jsonpath="{.data.admin-password}" | base64 --decode`: Retrieve Grafana admin password.
+   - Access Grafana at `http://localhost:3000` and Prometheus at `http://localhost:9090` after port-forwarding.
+   
+5. **Monitoring and Metrics Configuration**:
+   - Created ServiceMonitors and Ingress resources (`ServiceMonitor`, `Ingress`) for Prometheus and Grafana.
+   - Configured alerts and dashboards in Grafana for monitoring Kubernetes resources, application metrics, and server metrics.
+   - Used YAML files (`prometheus-config.yaml`, `prometheus-ingress.yaml`, etc.) to define Prometheus and Grafana configurations.
+
+These commands cover the essential operations performed in the project, including Docker image management, Kubernetes deployment and management, Helm chart operations, and configuration of monitoring and metrics components using Prometheus and Grafana. 
+Adjust the specific parameters and names (`<namespace>`, `<grafana-pod-name>`, etc.) based on your actual environment and resource names.
