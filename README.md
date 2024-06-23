@@ -62,6 +62,7 @@ Nginx, known for its high performance and scalability, is another popular web se
 Effective monitoring of WordPress, Apache HTTP Server, and Nginx ensures proactive management of your web application infrastructure. By monitoring these metrics, you can identify performance bottlenecks, anticipate resource requirements, and ensure optimal user experience. Customize these metrics based on your specific environment and monitoring tools to achieve comprehensive visibility and proactive management.
 
 ---
+## Commands
 Certainly! Here are the few main commands used in this project:
 
 1. **Docker Commands**:
@@ -92,3 +93,70 @@ Certainly! Here are the few main commands used in this project:
 
 These commands cover the essential operations performed in the project, including Docker image management, Kubernetes deployment and management, Helm chart operations, and configuration of monitoring and metrics components using Prometheus and Grafana. 
 Adjust the specific parameters and names (`<namespace>`, `<grafana-pod-name>`, etc.) based on your actual environment and resource names.
+
+---
+# Deployment and Testing
+
+### Step 1: Docker Image Creation and Pushing
+
+1. Build the Docker Image:
+   ```
+   docker build -t shreyabansal/nginx-lua .
+   ```
+
+2. Push the Docker Image to a Registry:
+   ```
+   docker push shreyabansal/nginx-lua
+   ```
+
+### Step 2: Kubernetes Deployment
+
+1. Create a Kubernetes Namespace:
+   ```
+   kubectl create namespace my-app
+   ```
+
+2. Deploy the Application:
+   ```
+   kubectl apply -f wordpress.yaml -n my-app
+   ```
+
+3. Check Deployment Status:
+   ```
+   kubectl get pods -n my-app
+   ```
+
+4. Expose Services:
+   - Expose necessary services using Kubernetes services (LoadBalancer, NodePort, Ingress).
+
+### Step 3: Prometheus and Grafana Setup
+
+1. Install Prometheus and Grafana:
+   ```
+   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+   helm repo update
+   helm install prometheus prometheus-community/prometheus --namespace monitoring
+   helm install grafana grafana/grafana --namespace monitoring
+   ```
+
+2. Access Grafana:
+   ```
+   kubectl port-forward svc/grafana -n monitoring 3000:3000
+   ```
+
+3. Configure Grafana Dashboards:
+   - Import or create dashboards in Grafana for monitoring metrics.
+
+### Step 4: Testing and Verification
+
+1. Verify Application Access:
+   - Access WordPress application via exposed service endpoint.
+
+2. Verify Monitoring Setup:
+   - Access Prometheus:
+     ```
+     kubectl port-forward svc/prometheus-server -n monitoring 9090:80
+     ```
+
+   - Access Grafana:
+     - Navigate to `http://localhost:3000` and check dashboards.
