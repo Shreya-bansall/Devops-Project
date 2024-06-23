@@ -1,0 +1,186 @@
+---
+# Source: wordpress-chart/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: my-wordpress-wordpress-chart
+---
+# Source: wordpress-chart/templates/mysql-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql
+---
+# Source: wordpress-chart/templates/nginx-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8090
+  selector:
+    app: nginx
+---
+# Source: wordpress-chart/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: wordpress
+---
+# Source: wordpress-chart/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-connection-service
+spec:
+  selector:
+    app: test-connection
+  ports:
+    - protocol: TCP
+      port: 80
+---
+# Source: wordpress-chart/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-connection
+spec:
+  containers:
+    - name: test-connection
+      image: busybox
+      command: ['sh', '-c', 'echo Hello Kubernetes! && sleep 3600']
+  restartPolicy: Never
+---
+# Source: wordpress-chart/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - name: wordpress
+        image: shreyabansal/wordpress
+        ports:
+        - containerPort: 80
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: mysql:3306
+        - name: WORDPRESS_DB_USER
+          value: root
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password
+        - name: WORDPRESS_DB_NAME
+          value: wordpress
+---
+# Source: wordpress-chart/templates/mysql-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password
+        - name: MYSQL_DATABASE
+          value: wordpress
+---
+# Source: wordpress-chart/templates/nginx-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: shreyabansal/nginx-lua
+        ports:
+        - containerPort: 8090
+---
+# Source: wordpress-chart/templates/hpa.yaml
+apiVersion: autoscaling/v2  # or autoscaling.k8s.io/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-wordpress-wordpress-chart
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-wordpress-wordpress-chart
+  minReplicas: 
+  maxReplicas: 
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization:
+---
+# Source: wordpress-chart/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wordpress-ingress
+spec:
+  rules:
+  - host: <your-domain>
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx
+            port:
+              number: 80

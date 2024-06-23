@@ -1,0 +1,4 @@
+# Dockerfile.wordpress
+
+FROM wordpress:latest
+# Add any customizations or plugins here

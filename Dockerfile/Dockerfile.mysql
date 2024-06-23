@@ -1,0 +1,4 @@
+# Dockerfile.mysql
+
+FROM mysql:latest
+# Add initialization scripts or configurations here

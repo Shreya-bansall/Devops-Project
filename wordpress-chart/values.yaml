@@ -1,0 +1,33 @@
+wordpress:
+  image: shreyabansal/wordpress
+  replicas: 2
+  port: 80
+
+mysql:
+  image: mysql:5.7
+  port: 3306
+  rootPassword: my-secret-pw
+  database: wordpress
+
+nginx:
+  image: shreyabansal/nginx-lua
+  port: 8090
+  replicas: 2
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteMany
+  size: 8Gi
+service:
+  port: 80  # Example port number, adjust according to your setup
+serviceAccount:
+  create: true  # Example value, adjust according to your setup
+autoscaling:
+  enabled: true  # Example value, adjust according to your setup
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 50
+ingress:
+  enabled: true  # Example value, adjust according to your setup
+  # Add other ingress configurations as needed
+
